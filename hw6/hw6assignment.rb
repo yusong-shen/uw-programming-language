@@ -7,8 +7,8 @@ class MyPiece < Piece
   # The constant All_My_Pieces should be declared here
   # 3 new enhencement pieces with 7 classic pieces
   All_My_Pieces = All_Pieces + [
-               rotations([[0, 0], [1, 0], [0, 1], [1, 1], [2, 0]]), # 2 + 3
-               rotations([[0, 0], [-1, 0], [1, 0], [2, 0], [3, 0]]), # long with 5
+               rotations([[0, 0], [1, 0], [0, 1], [-1, -1], [-1, 0]]), # 2 + 3
+               rotations([[0, 0], [-1, 0], [1, 0], [2, 0], [-2, 0]]), # long with 5
                rotations([[0, 0], [1, 0], [0, 1]]) # 1 + 2
                ]
 
@@ -46,7 +46,7 @@ class MyBoard < Board
     if !@is_cheat
       @current_block = MyPiece.next_piece(self)
     else
-      @current_block = MyPiece.new([[0, 0]], self)
+      @current_block = MyPiece.new([[[0, 0]]], self)
       @is_cheat = false
     end
     @current_pos = nil
@@ -65,7 +65,7 @@ class MyBoard < Board
   end  
 
   def cheat
-    if @score > 100 and !@is_cheat
+    if @score >= 100 and !@is_cheat
       @is_cheat = true
       @score -= 100
     end
