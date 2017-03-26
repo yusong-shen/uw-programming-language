@@ -6,18 +6,10 @@
 class MyPiece < Piece
   # The constant All_My_Pieces should be declared here
   # 3 new enhencement pieces with 7 classic pieces
-  All_My_Pieces = [
-               # [[0, 0], [1, 0], [0, 1], [1, 1]],  # square (only needs one)
-               # rotations([[0, 0], [-1, 0], [1, 0], [0, -1]]), # T
-               # [[[0, 0], [-1, 0], [1, 0], [2, 0]], # long (only needs two)
-               # [[0, 0], [0, -1], [0, 1], [0, 2]]],
-               # rotations([[0, 0], [0, -1], [0, 1], [1, 1]]), # L
-               # rotations([[0, 0], [0, -1], [0, 1], [-1, 1]]), # inverted L
-               # rotations([[0, 0], [-1, 0], [0, -1], [1, -1]]), # S
-               # rotations([[0, 0], [1, 0], [0, -1], [-1, -1]]), # Z
+  All_My_Pieces = All_Pieces + [
                rotations([[0, 0], [1, 0], [0, 1], [1, 1], [2, 0]]), # 2 + 3
                rotations([[0, 0], [-1, 0], [1, 0], [2, 0], [3, 0]]), # long with 5
-               # rotations([[0, 0], [1, 0], [0, 1]]) # 1 + 2
+               rotations([[0, 0], [1, 0], [0, 1]]) # 1 + 2
                ]
 
   # your enhancements here
@@ -54,23 +46,23 @@ class MyBoard < Board
     @current_pos = nil
   end  
 
-  # gets the information from the current piece about where it is and uses this
-  # to store the piece on the board itself.  Then calls remove_filled.
   def store_current
     locations = @current_block.current_rotation
     displacement = @current_block.position
-    (0..4).each{|index| 
+    (0..(locations.size - 1)).each{|index| 
       current = locations[index];
       @grid[current[1]+displacement[1]][current[0]+displacement[0]] = 
       @current_pos[index]
     }
     remove_filled
     @delay = [@delay - 2, 80].max
-  end 
+  end  
+
 end
 
 class MyTetris < Tetris
   # your enhancements here
+
   # override to use MyBoard
   def set_board
     @canvas = TetrisCanvas.new
