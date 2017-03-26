@@ -30,6 +30,7 @@ class MyBoard < Board
     @score = 0
     @game = game
     @delay = 500
+    @is_cheat = false
   end
 
   # rotates the current piece 180 degree
@@ -42,7 +43,12 @@ class MyBoard < Board
 
   # override to use MyPiece
   def next_piece
-    @current_block = MyPiece.next_piece(self)
+    if !@is_cheat
+      @current_block = MyPiece.next_piece(self)
+    else
+      @current_block = MyPiece.new([[0, 0]], self)
+      @is_cheat = false
+    end
     @current_pos = nil
   end  
 
@@ -57,6 +63,13 @@ class MyBoard < Board
     remove_filled
     @delay = [@delay - 2, 80].max
   end  
+
+  def cheat
+    if @score > 100 and !@is_cheat
+      @is_cheat = true
+      @score -= 100
+    end
+  end
 
 end
 
@@ -75,6 +88,7 @@ class MyTetris < Tetris
   def key_bindings
       super
       @root.bind('u', proc {@board.rotate_180})
+      @root.bind('c', proc {@board.cheat})
   end
 end
 
