@@ -119,9 +119,17 @@ class Point < GeometryValue
     @y = y
   end
 
-  def preprocess_prog 
-    self
+  def eval_prog env
+    Point.new(x, y)
   end
+
+  def preprocess_prog 
+    Point.new(x,y)
+  end
+
+  def shift(dx, dy)
+    Point.new(x + dx, y + dy)
+  end  
 end
 
 class Line < GeometryValue
@@ -132,6 +140,18 @@ class Line < GeometryValue
     @m = m
     @b = b
   end
+
+  def eval_prog env
+    Line.new(m, b)
+  end
+
+  def preprocess_prog 
+    Line.new(m, b)
+  end
+
+  def shift(dx, dy)
+    Line.new(m, b + dy - m * dx)
+  end 
 end
 
 class VerticalLine < GeometryValue
@@ -141,6 +161,18 @@ class VerticalLine < GeometryValue
   def initialize x
     @x = x
   end
+
+  def eval_prog env
+    VerticalLine.new(x)
+  end
+
+  def preprocess_prog 
+    VerticalLine.new(x)
+  end  
+
+  def shift(dx, dy)
+    VerticalLine.new(x + dx)
+  end 
 end
 
 class LineSegment < GeometryValue
@@ -156,6 +188,30 @@ class LineSegment < GeometryValue
     @x2 = x2
     @y2 = y2
   end
+
+  def eval_prog env
+    LineSegment.new(x1, y1, x2, y2)
+  end
+
+  def preprocess_prog 
+    if real_close_point(x1, y1, x2, y2)
+      Point.new(x1, y1)
+    else
+      if real_close(x1, x2) && y1 > y2
+        LineSegment.new(x2, y2, x1, y1) # switch the order of two end points
+      else
+        if x1 > x2
+          LineSegment.new(x2, y2, x1, y1) # switch the order of two end points
+        else
+          LineSegment.new(x1, y1, x2, y2)
+        end
+      end
+    end
+  end  
+
+  def shift(dx, dy)
+    LineSegment.new(x1 + dx, y1 + dy, x2 + dx, y2 + dy)
+  end 
 end
 
 # Note: there is no need for getter methods for the non-value classes
@@ -167,6 +223,14 @@ class Intersect < GeometryExpression
     @e1 = e1
     @e2 = e2
   end
+
+  def eval_prog env
+    # TODO
+  end
+
+  def preprocess_prog
+    Intersect.new(e1.preprocess_prog, e2.preprocess_prog)
+  end
 end
 
 class Let < GeometryExpression
@@ -177,6 +241,17 @@ class Let < GeometryExpression
     @s = s
     @e1 = e1
     @e2 = e2
+  end
+
+  def eval_prog env
+    # environment is an array of two-elements array, like [["v1", 1], ["v2", 3]]
+    env2 = env.clone # shallow copy of environment
+    env2.insert(0, [s, e1.eval_prog(env2)]) # insert at the beginning
+    e2.eval_prog(env2)
+  end
+
+  def preprocess_prog
+    Let.new(s, e1.preprocess_prog, e2.preprocess_prog)
   end
 end
 
@@ -191,6 +266,10 @@ class Var < GeometryExpression
     raise "undefined variable" if pr.nil?
     pr[1]
   end
+
+  def preprocess_prog
+    Var.new(s)
+  end
 end
 
 class Shift < GeometryExpression
@@ -200,5 +279,14 @@ class Shift < GeometryExpression
     @dx = dx
     @dy = dy
     @e = e
+  end
+
+  def eval_prog env
+    vv = e.eval_prog(env)
+    vv.shift(dx, dy)
+  end
+
+  def preprocess_prog
+    Shift.new(dx, dy, e.preprocess_prog)
   end
 end

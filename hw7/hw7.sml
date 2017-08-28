@@ -228,9 +228,11 @@ fun preprocess_prog (e) =
             then Point (x1start,y1start)
             else if real_close(x1start,x1end) andalso y1start > y1end
                 then LineSegment (x1end,y1end,x1start,y1start) 
-                else if x1start > y1end
+                else if x1start > x1end
                     then LineSegment (x1end,y1end,x1start,y1start) 
                     else e
         end
         | Shift(deltaX,deltaY,exp) => Shift(deltaX,deltaY,preprocess_prog exp)
+        | Let(s,e1,e2) => Let(s,preprocess_prog e1, preprocess_prog e2)
+        | Intersect(e1,e2) => Intersect(preprocess_prog e1, preprocess_prog e2)
         | _ => e
