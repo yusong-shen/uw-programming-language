@@ -118,6 +118,10 @@ class Point < GeometryValue
     @x = x
     @y = y
   end
+
+  def preprocess_prog 
+    self
+  end
 end
 
 class Line < GeometryValue
