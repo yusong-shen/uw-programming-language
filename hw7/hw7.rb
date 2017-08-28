@@ -68,6 +68,8 @@ class GeometryValue
     line_result = intersect(two_points_to_line(seg.x1,seg.y1,seg.x2,seg.y2))
     line_result.intersectWithSegmentAsLineResult seg
   end
+
+  Epsilon = 0.00001
 end
 
 class NoPoints < GeometryValue
@@ -137,19 +139,42 @@ class Point < GeometryValue
 
   # second dispatch
   def intersectPoint p
-    # TODO
+    # intersect with point and point
+    if real_close_point(p.x, p.y, self.x, self.y)
+      self
+    else
+      NoPoints.new
+    end
   end
 
   def intersectLine line
-    # TODO
+    # intersect with point and line
+    if real_close(y, line.m * x + line.b)
+      self
+    else
+      NoPoints.new
+    end
   end
 
   def intersectVerticalLine vline
-    # TODO
+    # intersect with point and vertical line
+    if real_close(x, vline.x)
+      self
+    else
+      NoPoints.new
+    end
   end
 
   def intersectWithSegmentAsLineResult seg
-    # TODO
+    # helper function
+    def inbetween(v, end1, end2)
+      (end1 - Epsilon <= v && v <= end2 + Epsilon) || (end2 - Epsilon <= v && v <= end1 + Epsilon)
+    end
+    if inbetween(x, seg.x1, seg.x2) && inbetween(y, seg,y1, seg.y2)
+      Point.new(x, y)
+    else
+      NoPoints.new
+    end
   end  
 end
 
@@ -179,19 +204,31 @@ class Line < GeometryValue
   end
 
   def intersectPoint p
-    # TODO
+    # intersect with line and point
+    self.intersect p # we have already solved it
   end
   
   def intersectLine line
-    # TODO
+    if real_close(line.m, self.m)
+      if real_close(line.b, self.b) 
+        self # same line
+      else
+        NoPoints.new # parallel line
+      end
+    else
+      x = (line.b - self.b) / (self.m - line.m)
+      y = self.m * x + self.b
+      Point.new(x, y)
+    end
   end
 
   def intersectVerticalLine vline
-    # TODO
+    Point.new(vline.x, m * vline.x + b)
   end
 
   def intersectWithSegmentAsLineResult seg
-    # TODO
+    # segment seg is on line self
+    seg
   end   
 end
 
@@ -220,19 +257,24 @@ class VerticalLine < GeometryValue
   end
 
   def intersectPoint p
-    # TODO
+    self.intersect p
   end
   
   def intersectLine line
-    # TODO
+    self.intersect line
   end
 
   def intersectVerticalLine vline
-    # TODO
+    if real_close(vline.x, self.x)
+      self # Same line
+    else
+      NoPoints.new
+    end
   end
 
   def intersectWithSegmentAsLineResult seg
-    # TODO
+    # segment seg is on vertical line self
+    seg
   end   
 end
 
@@ -280,19 +322,20 @@ class LineSegment < GeometryValue
   end
 
   def intersectPoint p
-    # TODO
+    self.intersect p
   end
   
   def intersectLine line
-    # TODO
+    self.intersect line
   end
 
   def intersectVerticalLine vline
-    # TODO
+    self.intersect vline
   end
 
   def intersectWithSegmentAsLineResult seg
     # TODO
+    NoPoints.new
   end 
 end
 
