@@ -335,7 +335,54 @@ class LineSegment < GeometryValue
 
   def intersectWithSegmentAsLineResult seg
     # TODO
-    NoPoints.new
+    # segment seg and segment self are on the same line
+    x1start, y1start, x1end, y1end = seg.x1, seg.y1, seg.x2, seg.y2
+    x2start, y2start, x2end, y2end = self.x1, self.y1, self.x2, self.y2
+    if real_close(x1start, x1end)
+      # the segments are on a vertical line
+      # let segment a start at or below start of segment b
+      segA, segB = self, seg
+      if y1start < y2start
+        segA, segB = seg, self        
+      end
+      aXstart, aYstart, aXend, aYend = segA.x1, segA.y1, segA.x2, segA.y2
+      bXstart, bYstart, bXend, bYend = segB.x1, segB.y1, segB.x2, segB.y2
+      if real_close(aYend, bYstart)
+        Point.new(aXend, aYend) # just touching
+      else
+        if aYend < bYstart
+          NoPoints.new # disjoint
+        else
+          if aYend > bYend
+            LineSegment.new(bXstart, bYstart, bXend, bYend) # b inside a
+          else
+            LineSegment.new(bXstart, bYstart, aXend, aYend) # overlapping
+          end
+        end
+      end
+    else
+      # the segments are on a (non-vertical) line
+      # let segment a start at or to the left of start of segment b
+      segA, segB = self, seg
+      if x1start < x2start
+        segA, segB = seg, self        
+      end
+      aXstart, aYstart, aXend, aYend = segA.x1, segA.y1, segA.x2, segA.y2
+      bXstart, bYstart, bXend, bYend = segB.x1, segB.y1, segB.x2, segB.y2
+      if real_close(aXend, bXstart)
+        Point.new(aXend, aYend) # just touching
+      else
+        if aXend < bXstart
+          NoPoints.new # disjoint
+        else
+          if aXend > bXend
+            LineSegment.new(bXstart, bYstart, bXend, bYend) # b inside a
+          else
+            LineSegment.new(bXstart, bYstart, aXend, aYend) # overlapping
+          end
+        end
+      end    
+    end
   end 
 end
 
