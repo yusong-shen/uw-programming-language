@@ -228,7 +228,7 @@ fun preprocess_prog (e) =
             then Point (x1start,y1start)
             else if real_close(x1start,x1end) andalso y1start > y1end
                 then LineSegment (x1end,y1end,x1start,y1start) 
-                else if x1start > x1end
+                else if (not (real_close(x1start,x1end))) andalso x1start > x1end
                     then LineSegment (x1end,y1end,x1start,y1start) 
                     else e
         end

@@ -170,7 +170,7 @@ class Point < GeometryValue
     def inbetween(v, end1, end2)
       (end1 - Epsilon <= v && v <= end2 + Epsilon) || (end2 - Epsilon <= v && v <= end1 + Epsilon)
     end
-    if inbetween(@x, seg.x1, seg.x2) && inbetween(@y, seg,y1, seg.y2)
+    if inbetween(@x, seg.x1, seg.x2) && inbetween(@y, seg.y1, seg.y2)
       Point.new(@x, @y)
     else
       NoPoints.new
@@ -303,7 +303,7 @@ class LineSegment < GeometryValue
       if real_close(@x1, @x2) && @y1 > @y2
         LineSegment.new(@x2, @y2, @x1, @y1) # switch the order of two end points
       else
-        if x1 > x2
+        if !real_close(@x1, @x2) && x1 > x2
           LineSegment.new(@x2, @y2, @x1, @y1) # switch the order of two end points
         else
           LineSegment.new(@x1, @y1, @x2, @y2)
@@ -334,7 +334,6 @@ class LineSegment < GeometryValue
   end
 
   def intersectWithSegmentAsLineResult seg
-    # TODO
     # segment seg and segment self are on the same line
     x1start, y1start, x1end, y1end = seg.x1, seg.y1, seg.x2, seg.y2
     x2start, y2start, x2end, y2end = self.x1, self.y1, self.x2, self.y2
